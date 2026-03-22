@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculatrice — Ilan</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0d0d0d;
+      color: #e8e8e8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1rem;
+      color: #6b6b6b;
+      margin-bottom: 24px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .calculatrice {
+      background: #141414;
+      border: 1px solid #1f1f1f;
+      border-radius: 20px;
+      padding: 24px;
+      width: 280px;
+    }
+
+    .ecran {
+      background: #0a0a0a;
+      border: 1px solid #1f1f1f;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      text-align: right;
+    }
+
+    .ecran-resultat {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #e8e8e8;
+      min-height: 48px;
+      word-break: break-all;
+    }
+
+    .grille-boutons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 18px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .btn-chiffre {
+      background: #1f1f1f;
+      color: #e8e8e8;
+    }
+    .btn-chiffre:hover { background: #2a2a2a; }
+    .btn-chiffre:active { transform: scale(0.95); }
+
+    .btn-operateur {
+      background: #2a2a2a;
+      color: #c8f55a;
+    }
+    .btn-operateur:hover { background: #333; }
+    .btn-operateur:active { transform: scale(0.95); }
+
+    .btn-egal {
+      background: #c8f55a;
+      color: #0d0d0d;
+    }
+    .btn-egal:hover { background: #d6ff66; }
+    .btn-egal:active { transform: scale(0.95); }
+
+    .btn-effacer {
+      background: #2f2f2f;
+      color: #e8e8e8;
+    }
+    .btn-effacer:hover { background: #3a3a3a; }
+    .btn-effacer:active { transform: scale(0.95); }
+
+    .btn-zero {
+      grid-column: span 2;
+      text-align: left;
+      padding-left: 22px;
+    }
+
+    .retour {
+      margin-top: 24px;
+      color: #4b4b4b;
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color .2s;
+    }
+    .retour:hover { color: #c8f55a; }
+  </style>
+</head>
+<body>
+
+  <h1>Mini Calculatrice</h1>
+
+  <div class="calculatrice">
+
+    <div class="ecran">
+      <div class="ecran-resultat" id="ecran">0</div>
+    </div>
+
+    <div class="grille-boutons">
+
+      <button class="btn btn-effacer" onclick="effacer()">C</button>
+      <button class="btn btn-effacer" style="grid-column: span 2;" onclick="supprimer()">⌫</button>
+      <button class="btn btn-operateur" onclick="choisirOperation('/')">÷</button>
+
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('7')">7</button>
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('8')">8</button>
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('9')">9</button>
+      <button class="btn btn-operateur" onclick="choisirOperation('*')">×</button>
+
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('4')">4</button>
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('5')">5</button>
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('6')">6</button>
+      <button class="btn btn-operateur" onclick="choisirOperation('-')">−</button>
+
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('1')">1</button>
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('2')">2</button>
+      <button class="btn btn-chiffre" onclick="ajouterChiffre('3')">3</button>
+      <button class="btn btn-operateur" onclick="choisirOperation('+')">+</button>
+
+      <button class="btn btn-chiffre btn-zero" onclick="ajouterChiffre('0')">0</button>
+      <button class="btn btn-effacer" onclick="effacer()">AC</button>
+      <button class="btn btn-egal" onclick="calculer()">=</button>
+
+    </div>
+  </div>
+
+  <a href="index.html" class="retour">← Retour au portfolio</a>
+
+  <script>
+    let nombreEnCours = '';
+    let nombrePrecedent = '';
+    let operateur = '';
+    let doitReinitialiser = false;
+
+    function ajouterChiffre(chiffre) {
+      if (doitReinitialiser) {
+        nombreEnCours = '';
+        doitReinitialiser = false;
+      }
+      if (nombreEnCours.length >= 9) return;
+      nombreEnCours += chiffre;
+      afficher(nombreEnCours);
+    }
+
+    function choisirOperation(op) {
+      if (nombreEnCours === '' && nombrePrecedent === '') return;
+      if (nombreEnCours !== '' && nombrePrecedent !== '') {
+        calculer();
+      }
+      operateur = op;
+      nombrePrecedent = nombreEnCours || nombrePrecedent;
+      nombreEnCours = '';
+    }
+
+    function calculer() {
+      if (nombrePrecedent === '' || operateur === '' || nombreEnCours === '') return;
+      let a = parseInt(nombrePrecedent);
+      let b = parseInt(nombreEnCours);
+      let resultat = 0;
+      if (operateur === '+') resultat = a + b;
+      if (operateur === '-') resultat = a - b;
+      if (operateur === '*') resultat = a * b;
+      if (operateur === '/') {
+        if (b === 0) {
+          afficher('Erreur');
+          reinitialiser();
+          return;
+        }
+        resultat = Math.round(a / b);
+      }
+      afficher(resultat);
+      nombreEnCours = String(resultat);
+      nombrePrecedent = '';
+      operateur = '';
+      doitReinitialiser = true;
+    }
+
+    function effacer() {
+      reinitialiser();
+      afficher('0');
+    }
+
+    function supprimer() {
+      if (nombreEnCours.length <= 1) {
+        nombreEnCours = '';
+        afficher('0');
+      } else {
+        nombreEnCours = nombreEnCours.slice(0, -1);
+        afficher(nombreEnCours);
+      }
+    }
+
+    function reinitialiser() {
+      nombreEnCours = '';
+      nombrePrecedent = '';
+      operateur = '';
+      doitReinitialiser = false;
+    }
+
+    function afficher(valeur) {
+      document.getElementById('ecran').textContent = valeur;
+    }
+  </script>
+
+</body>
+</html>
